@@ -1,21 +1,29 @@
 import 'dotenv/config';
 import pkg from 'pg';
-const { Pool } = pkg;
+const Pool = pkg.Pool || pkg.default?.Pool; // fallback si es default export
 
-const pool = new Pool({
+const dbConfig = {
   host: process.env.SUPABASE_HOST,
   user: process.env.SUPABASE_USER,
   password: process.env.SUPABASE_PASSWORD,
   database: process.env.SUPABASE_DB,
-  port: process.env.SUPABASE_PORT,
-  ssl: { rejectUnauthorized: false } // Supabase exige conexión segura
-});
+  port: Number(process.env.SUPABASE_PORT) || 5432,
+  max: 10,       // opcional: pool size
+  idleTimeoutMillis: 30000
+};
 
-try {
-  await pool.connect();
-  console.log('Conexión exitosa a la base de datos Supabase');
-} catch (err) {
-  console.error('Error al conectar con la base de datos', err);
-}
+console.log("Connecting with config:", dbConfig);
+
+const pool = new Pool(dbConfig);
+
+// probar conexión
+(async () => {
+  try {
+    await pool.query('SELECT NOW()'); // test usando query
+    console.log('✅ Conectado a Supabase PostgreSQL');
+  } catch (err) {
+    console.error('❌ Error al conectar con la base de datos:', err.message);
+  }
+})();
 
 export default pool;

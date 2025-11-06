@@ -1,4 +1,4 @@
-import detalleVentaService from '../services/detalle_venta.service.js';
+import { detalleVentaService } from '../services/detalle_venta.service.js';
 
 export const detalleVentaController = {
   crearDetalleVenta: async (req, res) => {
