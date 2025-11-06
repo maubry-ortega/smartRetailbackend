@@ -1,4 +1,4 @@
-import { productoService } from '../services/producto.service'
+import { productoService } from '../services/producto.service.js'
 
 export const productoController = {
 
