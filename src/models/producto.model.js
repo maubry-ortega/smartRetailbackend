@@ -22,13 +22,19 @@ export const Producto = {
   },
 
   update: async (id, data) => {
-    const { nombre, categoria, genero, talla, precio, stock_actual, sucursal_id } = data;
-    const res = await pool.query(
-      `UPDATE productos
-       SET nombre=$1, categoria=$2, genero=$3, talla=$4, precio=$5, stock_actual=$6, sucursal_id=$7, fecha_actualizacion=NOW()
-       WHERE id=$8 RETURNING *`,
-      [nombre, categoria, genero, talla, precio, stock_actual, sucursal_id, id]
-    );
+    const fields = Object.keys(data);
+    const values = Object.values(data);
+    const setClause = fields.map((field, index) => `${field}=$${index + 1}`).join(', ');
+
+    const query = `
+      UPDATE productos
+      SET ${setClause}, fecha_actualizacion=NOW()
+      WHERE id=$${fields.length + 1}
+      RETURNING *
+    `;
+    const allValues = [...values, id];
+
+    const res = await pool.query(query, allValues);
     return res.rows[0];
   },
 

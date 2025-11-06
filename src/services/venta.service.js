@@ -6,7 +6,7 @@ export const ventaService = {
     return await Venta.findAll();
   },
 
-  obtenerVentaPorId: async (id) => {
+  listarVentaPorId: async (id) => {
     const venta = await Venta.findById(id);
     if (!venta) throw new Error('Venta no encontrada');
     return venta;

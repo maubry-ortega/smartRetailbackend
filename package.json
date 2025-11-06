@@ -19,6 +19,9 @@
   ],
   "author": "DevMaubry",
   "license": "ISC",
+  "jest": {
+    "globalTeardown": "<rootDir>/tests/teardown.js"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.80.0",
     "bcrypt": "^5.1.1",
