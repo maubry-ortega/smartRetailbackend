@@ -14,7 +14,7 @@ export const productoController = {
 
   listarProductos: async (req, res) => {
     try {
-      const productos = await productoService.ListarProductos();
+            const productos = await productoService.listarProductos();
       res.status(200).json(productos);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -24,11 +24,11 @@ export const productoController = {
   listarProductoPorId: async (req, res) => {
     const id = req.params.id;
     try {
-      const productoEncontrado = await productoService.ListarProductosId(id);
+      const productoEncontrado = await productoService.obtenerProductoPorId(id);
       if (!productoEncontrado || productoEncontrado.length === 0) {
         return res.status(404).json({ error: 'Producto no encontrado' });
       }
-      res.status(200).json(productoEncontrado[0]);
+      res.status(200).json(productoEncontrado);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -38,7 +38,7 @@ export const productoController = {
     const { id } = req.params;
     const ProductoData = req.body;
     try {
-      const result = await productoService.ActualizarProducto(id, ProductoData);
+      const result = await productoService.actualizarProducto(id, ProductoData);
       res.status(200).json(result);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -48,7 +48,7 @@ export const productoController = {
   eliminarProducto: async (req, res) => {
     const { id } = req.params;
     try {
-      const result = await productoService.EliminarProducto(id);
+      const result = await productoService.eliminarProducto(id);
       res.status(200).json(result);
     } catch (error) {
       res.status(500).json({ error: error.message });
