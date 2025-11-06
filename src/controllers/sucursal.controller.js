@@ -1,4 +1,4 @@
-import sucursalService from '../services/sucursal.service.js';
+import { sucursalService } from '../services/sucursal.service.js';
 
 export const sucursalController = {
   crearSucursal: async (req, res) => {

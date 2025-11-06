@@ -1,8 +1,8 @@
-import productoService from '../services/producto.service.js';
+import { productoService } from '../services/producto.service'
 
 export const productoController = {
 
-  crearProductoC: async (req, res) => {
+  crearProducto: async (req, res) => {
     const ProductoData = req.body;
     try {
       const productoCreado = await productoService.crearProducto(ProductoData);
@@ -12,7 +12,7 @@ export const productoController = {
     }
   },
 
-  ListarProductosC: async (req, res) => {
+  listarProductos: async (req, res) => {
     try {
       const productos = await productoService.ListarProductos();
       res.status(200).json(productos);
@@ -21,7 +21,7 @@ export const productoController = {
     }
   },
 
-  ListarProductosIdC: async (req, res) => {
+  listarProductoPorId: async (req, res) => {
     const id = req.params.id;
     try {
       const productoEncontrado = await productoService.ListarProductosId(id);
@@ -34,7 +34,7 @@ export const productoController = {
     }
   },
 
-  ActualizarProductoC: async (req, res) => {
+  actualizarProducto: async (req, res) => {
     const { id } = req.params;
     const ProductoData = req.body;
     try {
@@ -45,7 +45,7 @@ export const productoController = {
     }
   },
 
-  EliminarProductoC: async (req, res) => {
+  eliminarProducto: async (req, res) => {
     const { id } = req.params;
     try {
       const result = await productoService.EliminarProducto(id);

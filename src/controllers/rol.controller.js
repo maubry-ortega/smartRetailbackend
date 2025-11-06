@@ -1,4 +1,4 @@
-import rolService from '../services/rol.services.js';
+import { rolService } from '../services/rol.services.js';
 
 export const rolController = {
   crearRol: async (req, res) => {

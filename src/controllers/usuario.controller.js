@@ -1,4 +1,4 @@
-import usuarioService from '../services/usuario.service.js';
+import { usuarioService } from '../services/usuario.service.js';
 
 export const usuarioController = {
   crearUsuario: async (req, res) => {

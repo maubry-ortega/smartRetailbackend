@@ -1,4 +1,4 @@
-import ventaService from '../services/venta.service.js';
+import { ventaService } from '../services/venta.service.js';
 
 export const ventaController = {
   crearVenta: async (req, res) => {
