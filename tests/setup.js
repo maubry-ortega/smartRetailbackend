@@ -13,7 +13,6 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await pool.query('ROLLBACK');
-  await pool.end();
   server.close();
 });
 
