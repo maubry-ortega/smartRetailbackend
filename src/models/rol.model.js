@@ -1,51 +1,36 @@
-const pool = require('../config/database');
-const mysql = require('mysql2');
+import pool from '../config/database.js';
 
-const Rol = {
-  findAll: async function() {
-    return await pool.execute('SELECT * FROM Rol');
+export const Rol = {
+
+  findAll: async () => {
+    const res = await pool.query('SELECT * FROM roles');
+    return res.rows;
   },
 
-  create: async function(rolData) {
-    if ( !rolData.rol ) {
-      throw new Error('Todos los campos son requeridos');
-    }
-
-    const rol = `INSERT INTO Rol ( rol)
-      VALUES (?)`;
-    return pool.execute(rol, [rolData.rol]);
+  findById: async (id) => {
+    const res = await pool.query('SELECT * FROM roles WHERE id=$1', [id]);
+    return res.rows[0];
   },
 
-  findByPk: async function(idRol) {
-    return await pool.execute('SELECT * FROM Rol where idRol = ?', [idRol]);
+  create: async (nombre) => {
+    const res = await pool.query(
+      'INSERT INTO roles (nombre) VALUES ($1) RETURNING *',
+      [nombre]
+    );
+    return res.rows[0];
   },
 
-  editRol: async function(idRol, nuevoRol) {
-    try {
-      const [result] = await pool.execute(
-        `UPDATE Rol SET  rol = ? WHERE idRol = ?`,
-        [nuevoRol.rol, idRol]
-      );
-      if (result.affectedRows === 0) {
-        throw new Error('No se encontró el rol');
-      }
-      return { mensaje: 'Rol se actualizó correctamente' };
-    } catch (error) {
-      throw error;
-    }
+  update: async (id, nombre) => {
+    const res = await pool.query(
+      'UPDATE roles SET nombre=$1 WHERE id=$2 RETURNING *',
+      [nombre, id]
+    );
+    return res.rows[0];
   },
 
-  deleteRol: async function(idRol) {
-    try {
-      const [result] = await pool.execute('DELETE FROM Rol WHERE idRol = ?', [idRol]);
-      if (result.affectedRows === 0) {
-        throw new Error('Rol no existe');
-      }
-      return { message: 'Rol eliminado exitosamente' };
-    } catch (error) {
-      throw error;
-    }
+  delete: async (id) => {
+    const res = await pool.query('DELETE FROM roles WHERE id=$1 RETURNING *', [id]);
+    return res.rows[0];
   }
-};
 
-module.exports = Rol;
+};

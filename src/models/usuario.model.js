@@ -1,53 +1,45 @@
-//consultas a la base de datos de mysql2 
-const pool = require('../config/database');
-const mysql = require('mysql2');
+import pool from '../config/database.js';
 
-const Usuario = {
-    //funcion para mostrar todo de la tabla usuarios, funciona asincronica nos retorna una consulta
-    findAll: async function () {
-        return await pool.execute('SELECT u.*, r.rol FROM Usuario u JOIN Rol r ON u.idRol = r.idRol');
-    },
-    create: async function (UsuarioData) {
-        if (!UsuarioData.identificacion || !UsuarioData.nombre || !UsuarioData.apellido || !UsuarioData.email || !UsuarioData.contrasena || !UsuarioData.direccion || !UsuarioData.fecha_nacimiento || !UsuarioData.idRol) {
-            throw new Error('Todos los campos son requeridos...');
-        }
+export const Usuario = {
 
-        const user = `INSERT INTO Usuario (identificacion, nombre, apellido, email, contrasena, direccion, fecha_nacimiento, idRol )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        return pool.execute(user, [UsuarioData.identificacion, UsuarioData.nombre, UsuarioData.apellido, UsuarioData.email, UsuarioData.contrasena, UsuarioData.direccion, UsuarioData.fecha_nacimiento, UsuarioData.idRol]);
-    },
-    findOneUsuario: async function (id) {//devuelve un usuario específico por su ID.
-        return await pool.execute('SELECT * FROM Usuario where idUsuario = ?', [id]);
+  findAll: async () => {
+    const res = await pool.query('SELECT * FROM usuarios');
+    return res.rows;
+  },
 
-    },
-    findUserByEmail: async (email) => {
-        return pool.execute('SELECT * FROM Usuario where email = ?', [email])
-    },
-    editUsuario: async function (idUsuario, NuevoUsuario) {//actualiza un usuario existente en la base de datos
-        try {
-            const [result] = await pool.execute(
-                `UPDATE Usuario SET identificacion = ?, nombre = ?, apellido = ?, email = ?, contrasena = ?, direccion = ?, fecha_nacimiento = ?, identificacion = ?  WHERE id = ?`,
-                [NuevoUsuario.identificacion, NuevoUsuario.nombre, NuevoUsuario.apellido, NuevoUsuario.email, NuevoUsuario.contrasena, NuevoUsuario.direccion, NuevoUsuario.fecha_nacimiento, NuevoUsuario.identificacion, idUsuario]
-            );
-            if (result.affectedRows === 0) {
-                throw new Error('No se encontró el usuario');
-            }
-            return { mensaje: 'Usuario se actualizó correctamente' };
-        } catch (error) {
-            throw error;
-        }
-    },
-    DeleteUsaurio: async function (idUsuario) {
-        try {
-            const [result] = await pool.execute('DELETE FROM Usuario WHERE idUsuario = ?', [idUsuario])
-            if (result.affectedRows === 0) {
-                throw new console.error('Usuario no existe')
-            }
-            return { message: 'Usuario elimnado existosamente' }
-        } catch (error) {
-            throw error
-        }
-    }
-}
+  findById: async (id) => {
+    const res = await pool.query('SELECT * FROM usuarios WHERE id=$1', [id]);
+    return res.rows[0];
+  },
 
-module.exports = Usuario;
+  findByEmail: async (email) => {
+    const res = await pool.query('SELECT * FROM usuarios WHERE email=$1', [email]);
+    return res.rows;
+  },
+
+  create: async ({ username, email, password_hash, rol_id }) => {
+    const res = await pool.query(
+      `INSERT INTO usuarios (username, email, password_hash, rol_id)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [username, email, password_hash, rol_id]
+    );
+    return res.rows[0];
+  },
+
+  update: async (id, data) => {
+    const { username, email, password_hash, rol_id, activo } = data;
+    const res = await pool.query(
+      `UPDATE usuarios
+       SET username=$1, email=$2, password_hash=$3, rol_id=$4, activo=$5
+       WHERE id=$6 RETURNING *`,
+      [username, email, password_hash, rol_id, activo, id]
+    );
+    return res.rows[0];
+  },
+
+  delete: async (id) => {
+    const res = await pool.query('DELETE FROM usuarios WHERE id=$1 RETURNING *', [id]);
+    return res.rows[0];
+  }
+
+};

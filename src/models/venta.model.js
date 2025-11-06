@@ -1,33 +1,40 @@
-const pool = require("../config/database");
+import pool from '../config/database.js';
 
-const Venta = {
+export const Venta = {
+
   findAll: async () => {
-    return await pool.execute("SELECT v.*, u.nombre, u.apellido FROM Venta v JOIN Usuario u ON v.id_usuario = u.id");
+    const res = await pool.query('SELECT * FROM ventas');
+    return res.rows;
   },
 
-  create: async ({ idUsuario, fechaVenta, total }) => {
-    return await pool.execute(
-      "INSERT INTO Venta (id_usuario, fecha_venta, total) VALUES (?, ?, ?)",
-      [idUsuario, fechaVenta, total]
+  findById: async (id) => {
+    const res = await pool.query('SELECT * FROM ventas WHERE id=$1', [id]);
+    return res.rows[0];
+  },
+
+  create: async ({ sucursal_id, usuario_id, metodo_pago, total }) => {
+    const res = await pool.query(
+      `INSERT INTO ventas (sucursal_id, usuario_id, metodo_pago, total)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [sucursal_id, usuario_id, metodo_pago, total || 0]
     );
+    return res.rows[0];
   },
 
-  findById: async (idVenta) => {
-    return await pool.execute("SELECT * FROM Venta WHERE id_venta = ?", [
-      idVenta,
-    ]);
-  },
-
-  update: async (idVenta, {idUsuario, fechaVenta, total }) => {
-    return await pool.execute(
-      "UPDATE Venta SET id_usuario = ?, fecha_venta = ?, total = ? WHERE id_venta = ?",
-      [idUsuario, fechaVenta, total, idVenta]
+  update: async (id, data) => {
+    const { sucursal_id, usuario_id, metodo_pago, total } = data;
+    const res = await pool.query(
+      `UPDATE ventas
+       SET sucursal_id=$1, usuario_id=$2, metodo_pago=$3, total=$4
+       WHERE id=$5 RETURNING *`,
+      [sucursal_id, usuario_id, metodo_pago, total, id]
     );
+    return res.rows[0];
   },
 
-  delete: async (idVenta) => {
-    return await pool.execute("DELETE FROM Venta WHERE id_venta = ?", [idVenta]);
+  delete: async (id) => {
+    const res = await pool.query('DELETE FROM ventas WHERE id=$1 RETURNING *', [id]);
+    return res.rows[0];
   }
-};
 
-module.exports = Venta;
+};
