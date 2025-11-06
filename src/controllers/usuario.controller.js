@@ -1,102 +1,77 @@
-const {CrearUsuario, ActualizarUser, ListarUsuarios, getUserByEmail,BuscarUsuarioporid, Login, cerrarSesion} = require('../services/usuario.service')
-const validarCamposRequeridos = require('../middleware/camposRequeridos');
-const controller = {}; //define el controlador
+import usuarioService from '../services/usuario.service.js';
 
-controller.ListarUsuariosC = async function (req, res) {
+export const usuarioController = {
+  crearUsuario: async (req, res) => {
+    const usuarioData = req.body;
     try {
-        const usuarios = await ListarUsuarios(); //Llama al servicio para obtener los usuarios
-        res.json(usuarios); //Si la operación es exitosa, se devuelve un estado 200 con los usuarios.
+      const usuarioCreado = await usuarioService.crearUsuario(usuarioData);
+      res.status(201).json(usuarioCreado);
     } catch (error) {
-        res.status(500).json({ error: error.message  }); //Si hay un error, se devuelve un estado 500 con el mensaje de error.
+      res.status(500).json({ error: error.message });
     }
-}
+  },
 
-controller.CrearUserC = async function (req, res) { 
+  listarUsuarios: async (req, res) => {
     try {
-        // Validar los campos del usuario
-        validarCamposRequeridos(['identificacion', 'nombre', 'apellido','email',  'direccion', 'fecha_nacimiento', 'idRol']) (req, res, async()=>{
-
-        
-        const usuarioData = req.body; //valida los campos de usuarios
-
-        if (!usuarioData.identificacion || !usuarioData.nombre || !usuarioData.apellido || !usuarioData.email  || !usuarioData.direccion || !usuarioData.fecha_nacimiento || !usuarioData.idRol) {
-            return res.status(400).json({ error: 'Todos los campos son requeridos' });
-        }
-        const user = await CrearUsuario(usuarioData);//Si son correctos se crea el usuario
-        res.status(201).json(user);//Si la operación es exitosa, se devuelve un estado 201 con el usuario creado.
-    })
+      const usuarios = await usuarioService.listarUsuarios();
+      res.status(200).json(usuarios);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
     }
-}
+  },
 
-controller.LoginC =  async function (req, res) {
-    try{
-        await Login(req, res);
-    }catch(error){
-        res.status(500)
-    }
-    
-}
-
-controller.ActualizarUserC = async function (req, res) {
-    try{
-        const usuarioDatos = req.body;
-        const idUsuario = req.params.id;
-
-        // Llamar al servicio para actualizar el usuario
-        const user = await ActualizarUser(idUsuario, usuarioDatos)
-
-        // Enviar la respuesta
-        return res.status(201).json(user);
-    }catch(error){
-        res.status(500).json({error: error.message})
-    }
-}
-controller.GetUserByEmailC = async (req, res) => {
-    const { email } = req.params;
+  listarUsuarioPorId: async (req, res) => {
+    const { id } = req.params;
     try {
-        const usuario = await getUserByEmail(email);
-        res.status(200).json(usuario);
+      const usuario = await usuarioService.listarUsuarioPorId(id);
+      if (!usuario) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+      res.status(200).json(usuario);
     } catch (error) {
-        if (error.message === 'Usuario no encontrado') {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
-        res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
     }
-}
-module.exports = controller;
+  },
 
-
-controller.BuscarUsuarioporid= async function (req, res) {
-    try{
-        const idUsuario = req.params.id;
-        // Llamar al servicio para actualizar el usuario
-        const user = await BuscarUsuarioporid(idUsuario)
-        // Enviar la respuesta
-        return res.status(201).json(user);
-    }catch(error){
-        res.status(500).json({error: error.message})
-
-    }
-    
-}
-controller.cerrarSesionC = async (req, res, next) => {
+  actualizarUsuario: async (req, res) => {
+    const { id } = req.params;
+    const usuarioData = req.body;
     try {
-      const authorizationHeader = req.headers.authorization;
-      if (!authorizationHeader) {
-       return res.status(401).json({ status: 401, error: 'No se proporcionó un token de autenticación' });
-     }
-   
-      const token = req.headers['authorization']; 
-   
-      await cerrarSesion(token);
-   
-      res.status(200).json({message: 'Sesión cerrada exitosamente' });
-     } catch (error) {
-       next(error);
-     }
-   };
+      const result = await usuarioService.actualizarUsuario(id, usuarioData);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
 
-module.exports = controller;
-//exporta el objeto controller que contiene la función CrearUserC, lo que permite que se pueda importar y utilizar en otros archivos.
+  eliminarUsuario: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const result = await usuarioService.eliminarUsuario(id);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  login: async (req, res) => {
+    try {
+      await usuarioService.login(req, res);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  logout: async (req, res) => {
+    try {
+      const token = req.headers.authorization;
+      if (!token) {
+        return res.status(401).json({ error: 'No se proporcionó token de autenticación' });
+      }
+      await usuarioService.logout(token);
+      res.status(200).json({ message: 'Sesión cerrada exitosamente' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+};

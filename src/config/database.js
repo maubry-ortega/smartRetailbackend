@@ -1,20 +1,21 @@
-const mysql = require('mysql2');
+import 'dotenv/config';
+import pkg from 'pg';
+const { Pool } = pkg;
 
-const pool = mysql.createPool({
-    host: '127.0.0.1',
-    user: 'root',
-    password: '123456789',
-    database: 'backend',
-
+const pool = new Pool({
+  host: process.env.SUPABASE_HOST,
+  user: process.env.SUPABASE_USER,
+  password: process.env.SUPABASE_PASSWORD,
+  database: process.env.SUPABASE_DB,
+  port: process.env.SUPABASE_PORT,
+  ssl: { rejectUnauthorized: false } // Supabase exige conexión segura
 });
 
-pool.query('SELECT 1 + 1 AS solution', function(err, rows){
-    if(err){
-        console.error('Error al conectarse a la base de datos', err)
-        return
-    };
-    console.log('conecion exitosa a mysql:', rows[0].solution);
-    
-});
+try {
+  await pool.connect();
+  console.log('Conexión exitosa a la base de datos Supabase');
+} catch (err) {
+  console.error('Error al conectar con la base de datos', err);
+}
 
-module.exports = pool.promise();
+export default pool;

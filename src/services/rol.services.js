@@ -1,64 +1,32 @@
-const RolUsuario = require('../models/rol.model');
+import { Rol } from '../models/rol.model.js';
 
+export const rolService = {
 
-const CrearRol = async function(rolData) {
-    if ( !rolData.rol ){
-        throw new Error('Todos los campos son requeridos');
-    }
-    try{
-        const rolCreado = await RolUsuario.create(rolData);
-        return rolCreado;
-    }
-    catch (error) {
-        throw error;
-    }
-}
+  listarRoles: async () => {
+    return await Rol.findAll();
+  },
 
-// const ActulizarRol = async function(idRol, nuevoRol) {
-//     try{
-//         const rolActualizado = await RolUsuario.editRol(idRol, nuevoRol);
-//         if (!rolActualizado){
-//             throw new Error('No se pudo actualizar el rol, o el rol no existe.');
-//         }
-//         return rolActualizado;
-//     }
-//     catch (error) {
-//         throw error;
-//     }
+  obtenerRolPorId: async (id) => {
+    const rol = await Rol.findById(id);
+    if (!rol) throw new Error('Rol no encontrado');
+    return rol;
+  },
 
-// }
+  crearRol: async (nombre) => {
+    if (!nombre) throw new Error('Nombre de rol es requerido');
+    return await Rol.create(nombre);
+  },
 
-const EditRol = async function(idRol, NuevoRol) {
-    try{
-      
-        const rolActualizado= {...idRol, ...NuevoRol}
-        await RolUsuario.editRol(idRol, rolActualizado);
-        
-        return rolActualizado;
-    }
-    catch (error) {
-        throw error;
-    }
-}
+  actualizarRol: async (id, nombre) => {
+    const rolActualizado = await Rol.update(id, nombre);
+    if (!rolActualizado) throw new Error('No se pudo actualizar el rol');
+    return rolActualizado;
+  },
 
-const ListarUsuRol = async function (rolData) {
-    try{
-        const roles = await RolUsuario.findAll(rolData);
-        return roles;
-    }
-    catch (error) {
-        throw error;
-    }
-    
-}
+  eliminarRol: async (id) => {
+    const rolEliminado = await Rol.delete(id);
+    if (!rolEliminado) throw new Error('Rol no encontrado');
+    return { message: 'Rol eliminado correctamente' };
+  }
 
-module.exports = {
-    CrearRol,
-    // ActulizarRol,
-    ListarUsuRol,
-    EditRol
-}
-
-
-
-
+};

@@ -1,5 +1,5 @@
 // ==========================
-//  🚀 SmartStock AI Backend
+//  SmartRetailbackend
 // ==========================
 
 import dotenv from 'dotenv';
@@ -9,19 +9,19 @@ import pool from './config/database.js';
 // Cargar variables de entorno
 dotenv.config();
 
-// Verificar conexión a Supabase PostgreSQL
+// verifica si esta conectado a supabase
 (async () => {
   try {
     const result = await pool.query('SELECT NOW()');
-    console.log(`🟢 Conectado a Supabase PostgreSQL (${result.rows[0].now})`);
+    console.log(`Conectado a Supabase PostgreSQL (${result.rows[0].now})`);
   } catch (err) {
-    console.error('❌ Error al conectar con la base de datos:', err.message);
+    console.error('Error al conectar con la base de datos:', err.message);
   }
 })();
 
-// Inicializar servidor Express
+// Inicia el servidor
 const PORT = Backend.get('port') || process.env.PORT || 4000;
 
 Backend.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

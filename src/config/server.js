@@ -1,35 +1,47 @@
-// vamos a ejecutar a traves de la libreria express
-// llamar rutas del puerto que se van ejecutar atraves del puerto q se quiera
-// usuarioRoutes constante que apartir de una cosnsulta me toma la ruta donde se necuentra usuairio.routes donde estan todas las rutas que se van a querer usar
-const express = require('express');
-const morgan = require('morgan')
-const cors = require('cors');
-const usuarioRoutes = require('../routes/usuario.routes')
-const RolRoutes = require('../routes/rol.routes')
-const ventaRoutes = require('../routes/venta.routes');
-const productosRoutes = require('../routes/producto.routes')
+// src/config/server.js
+import express from 'express';
+import morgan from 'morgan';
+import cors from 'cors';
+import dotenv from 'dotenv';
 
-// crear nuestra aplicacion express
+// Rutas
+import usuarioRoutes from '../routes/usuario.routes.js';
+import rolRoutes from '../routes/rol.routes.js';
+import ventaRoutes from '../routes/venta.routes.js';
+import productoRoutes from '../routes/producto.routes.js';
+import sucursalRoutes from '../routes/sucursal.routes.js';
+import detalleVentaRoutes from '../routes/detalle_venta.routes.js';
+
+dotenv.config();
+
 const Backend = express();
-const port = 3002;
 
-Backend.use(cors({
-    origin: 'http://localhost:4200', // Asegúrate de que esta URL coincida con la del frontend de Angular
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos HTTP permitido
-    allowedHeaders: ['Content-Type', 'Authorization'] // Cabeceras permitidas
-}));
-
+// Configuración base
+const FRONTEND_URL = 'http://localhost:4200';
+Backend.set('port', process.env.PORT || 3002);
 
 // Middlewares
+Backend.use(cors({
+  origin: FRONTEND_URL,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 Backend.use(express.json());
-Backend.use(morgan('dev'));
 Backend.use(express.urlencoded({ extended: true }));
+Backend.use(morgan('dev'));
 
-Backend.use(usuarioRoutes);
-Backend.use(RolRoutes);
-Backend.use(ventaRoutes);
-Backend.use(productosRoutes);
+// Rutas principales
+Backend.use('/api/usuarios', usuarioRoutes);
+Backend.use('/api/roles', rolRoutes);
+Backend.use('/api/ventas', ventaRoutes);
+Backend.use('/api/productos', productoRoutes);
+Backend.use('/api/sucursales', sucursalRoutes);
+Backend.use('/api/detalles-venta', detalleVentaRoutes);
 
+// Ruta raíz de prueba
+Backend.get('/', (req, res) => {
+  res.send('SmartRetail Backend API conectada y lista');
+});
 
-Backend.set('port', process.env.PORT || port );
-module.exports = Backend
+export default Backend;

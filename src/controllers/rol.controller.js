@@ -1,89 +1,56 @@
-const {CrearRol, ActulizarRol, ListarUsuRol, EditRol} = require('../services/rol.services');
-const validarCamposRequeridos = require('../middleware/camposRequeridos');
-const controller = {};
+import rolService from '../services/rol.services.js';
 
-controller.EditRolC = async function (req, res) {
-    try{
-        const rolDatos = req.body;
-        const idRol = req.params.id;
-
-        const user = await EditRol(idRol, rolDatos)
-        return res.status(201).json({message: 'perfil actualizado exitosamente', data: user });
-    }
-    catch (error){
-        res.status(500).json({error: error.message});
-    }
-}
-
-// controller.ActulizarRolC = async function (req, res) {
-//     try{
-//         const rolDatos = req.body;
-//         const idRol = req.params.id;
-
-//         const user = await ActulizarRol(idRol, rolDatos)
-//         return res.status(201).json(user);
-//     }
-//     catch (error){
-//         res,status(500).json({error: error.message});
-//     }
-// }
-
-controller.ListarUsuRolC = async function (req, res) {
+export const rolController = {
+  crearRol: async (req, res) => {
+    const rolData = req.body;
     try {
-        const usuarios = await ListarUsuRol(RolData);
-        res.json(usuarios);
+      const rolCreado = await rolService.crearRol(rolData);
+      res.status(201).json(rolCreado);
     } catch (error) {
-        res.status(500).json({ error: error.message  });
+      res.status(500).json({ error: error.message });
     }
-}
+  },
 
-controller.CrearRolC = async function (req, res) {
-    try{
-        validarCamposRequeridos(['rol' ]) (req, res, async()=>{
-            
-            const rolData = req.body;
-            if( !rolData.rol ){
-                return res.status(400).json({ error: 'Todos los campos son requeridos' });
-            } 
-
-            const usuario = await CrearRol(rolData);
-            res.status(201).json(usuario);
-        })
-    }
-    catch (error){
-        res.status(500).json({ error: error.message });
-    }
-}
-
-module.exports = controller;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const crearUserC = async function (req, res) {
-    const usuarioData = req.body;
+  listarRoles: async (req, res) => {
     try {
-        const usuario = await Usuario.create(usuarioData);
-        const rol = await crearRol({ nombreRol: 'Rol de prueba', descripcionRol: 'Descripción del rol' });
-        await asignarRol(usuario.idUsuario, rol.idRol);
-        res.json({ mensaje: 'Usuario creado correctamente' });
+      const roles = await rolService.listarRoles();
+      res.status(200).json(roles);
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al crear usuario' });
+      res.status(500).json({ error: error.message });
     }
+  },
+
+  listarRolPorId: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const rol = await rolService.listarRolPorId(id);
+      if (!rol) {
+        return res.status(404).json({ error: 'Rol no encontrado' });
+      }
+      res.status(200).json(rol);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  actualizarRol: async (req, res) => {
+    const { id } = req.params;
+    const rolData = req.body;
+    try {
+      const result = await rolService.actualizarRol(id, rolData);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  eliminarRol: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const result = await rolService.eliminarRol(id);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 };

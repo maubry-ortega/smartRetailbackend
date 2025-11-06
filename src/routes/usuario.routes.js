@@ -1,27 +1,16 @@
-//define una ruta para la creación de usuarios en una aplicación Node.js utilizando el framework Express.
-const express = require('express');
-const router = express.Router();
+import { Router } from 'express';
+import { usuarioController } from '../controllers/usuario.controller.js';
+import { validarTokenMiddleware } from '../middleware/auth.middleware.js';
 
-const {
-    //funciones del controller para la tabla usuarios
-    CrearUserC, 
-    ActualizarUserC, 
-    ListarUsuariosC,
-    GetUserByEmailC, BuscarUsuarioporid,
-    LoginC, cerrarSesionC
-} = require('../controllers/usuario.controller')
-const validarTokenMiddleware = require('../middleware/VerificadorToken')
+const router = Router();
 
+router.post('/login', usuarioController.login);
+router.post('/logout', usuarioController.logout);
 
-//metodos para ejecutar la tabla usuarios
-router.get('/listarUsuarios', validarTokenMiddleware, ListarUsuariosC);
-router.post('/crearUser', CrearUserC);-
-router.put('/actualizarUsers/:id', ActualizarUserC);
-router.post('/login', LoginC)
-router.post('/cerrarSesion', cerrarSesionC);
+router.post('/', usuarioController.crearUsuario);
+router.get('/', validarTokenMiddleware, usuarioController.listarUsuarios);
+router.get('/:id', validarTokenMiddleware, usuarioController.listarUsuarioPorId);
+router.put('/:id', validarTokenMiddleware, usuarioController.actualizarUsuario);
+router.delete('/:id', validarTokenMiddleware, usuarioController.eliminarUsuario);
 
-router.get('/buscarUser/:id',BuscarUsuarioporid);
-
-module.exports = router
-
-
+export default router;

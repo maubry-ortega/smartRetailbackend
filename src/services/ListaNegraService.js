@@ -1,6 +1,6 @@
 
 
-const { pool } = require('../config/database');
+import pool from '../config/database.js';
 
 const listaNegraService = {
   async agregarToken(token) {
@@ -56,4 +56,4 @@ setInterval(() => {
     .catch(error => console.error('Error al vaciar la lista negra:', error));
 }, 3600 * 1000); 
 
-module.exports = { listaNegraService };
+export { listaNegraService };

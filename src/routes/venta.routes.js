@@ -1,24 +1,12 @@
-const express = require("express");
-const router = express.Router();
+import { Router } from 'express';
+import { ventaController } from '../controllers/venta.controller.js';
 
-const {
-  CrearVentaC,
-  ObtenerVentasC,
-  ObtenerVentaPorIdC,
-  ActualizarVentaC,
-  EliminarVentaC,
-} = require("../controllers/venta.controller");
-const {
-  validarObtenerVentaPorId,
-  validarCrearVenta,
-  validarActualizarVenta,
-  validarEliminarVenta,
-} = require("../middleware/venta.validations");
+const router = Router();
 
-router.get("/obtenerVentas", ObtenerVentasC);
-router.get("/obtenerVentas/:idVenta", validarObtenerVentaPorId, ObtenerVentaPorIdC);
-router.post("/crearVenta", validarCrearVenta, CrearVentaC);
-router.put("/actualizarVenta/:idVenta", validarActualizarVenta, ActualizarVentaC);
-router.delete("/eliminarVenta/:idVenta", validarEliminarVenta, EliminarVentaC);
+router.post('/', ventaController.crearVenta);
+router.get('/', ventaController.listarVentas);
+router.get('/:id', ventaController.listarVentaPorId);
+router.put('/:id', ventaController.actualizarVenta);
+router.delete('/:id', ventaController.eliminarVenta);
 
-module.exports = router;
+export default router;
